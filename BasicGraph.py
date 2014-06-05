@@ -5,7 +5,6 @@ import time
 import threading
 
 import os, sys
-sys.path.append("..")
 import graph
 
 
@@ -72,7 +71,7 @@ class NewGraphFrame( graph.GraphFrame):
 			header += "\n" + "CH " + str(chan.idx)  
 	
 
-		graph.GraphFrame.__init__(self, parent, header=header,  xRange=xRange, yRange=yRange, nPoints=7000, xSize=xSize, ySize=ySize, title=title, xlabel=xlabel, ylabel=ylabel, POINTDEBUG=device.propCom.POINTDEBUG)
+		graph.GraphFrame.__init__(self, parent, header=header,  xRange=xRange, yRange=yRange, nPoints=7000, xSize=xSize, ySize=ySize, title=title, xlabel=xlabel, ylabel=ylabel, POINTDEBUG=logger.options["debug_points"])
 
 		# add widgets
 		widgetPanel = wx.Panel(self)
