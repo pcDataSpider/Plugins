@@ -56,17 +56,18 @@ def run_tool(window_parent, device):
 	for pin in triggers:
 		mask = mask | (1<<pin)
 	device.setNAvg(1)
-	device.propCom.send("timer",[0, 2*device.propCom.CLOCKPERSEC])
-	device.propCom.send("timer",[1, 1*device.propCom.CLOCKPERSEC])
-	device.propCom.send("timer",[2, 1*device.propCom.CLOCKPERSEC])
+	#
+	#device.propCom.send("timer",[0, 2*device.propCom.CLOCKPERSEC])
+	#device.propCom.send("timer",[1, 1*device.propCom.CLOCKPERSEC])
+	#device.propCom.send("timer",[2, 1*device.propCom.CLOCKPERSEC])
 	device.propCom.send("resetevents")
-	device.propCom.send("event", [conditions.index("onHigh"), actions.index("setTimer"), mask, 0])
-	device.propCom.send("event", [conditions.index("onHigh"), actions.index("setTimer"), mask, 1])
-	device.propCom.send("event", [conditions.index("onHigh"), actions.index("setTimer"), mask, 2])
+	#device.propCom.send("event", [conditions.index("onHigh"), actions.index("setTimer"), mask, 0])
+	#device.propCom.send("event", [conditions.index("onHigh"), actions.index("setTimer"), mask, 1])
+	#device.propCom.send("event", [conditions.index("onHigh"), actions.index("setTimer"), mask, 2])
 
 	#device.propCom.send("event", [device.propCom.conditions.index("timerExpire"), device.propCom.actions.index("DigOff"), 0, 511])
-	device.propCom.send("event", [conditions.index("timerExpire"), actions.index("AIStart"), 1, plotChannels[0].idx])
-	device.propCom.send("event", [conditions.index("timerExpire"), actions.index("AIStop"), 2, plotChannels[0].idx])
+	#device.propCom.send("event", [conditions.index("timerExpire"), actions.index("AIStart"), 1, plotChannels[0].idx])
+	#device.propCom.send("event", [conditions.index("timerExpire"), actions.index("AIStop"), 2, plotChannels[0].idx])
 
 
 
@@ -277,19 +278,19 @@ class GraphFrame(wx.Frame):
 
 
 class PulsedExperiment(GraphFrame):
-	def __init__(self, parent, device, channels=None, triggers=None, rate=2000, nAvg=10, bufferSize=1):
+	def __init__(self, parent, device, channels=None, triggers=None, rate=10000, nAvg=10, bufferSize=1):
 		self.channels = channels
 		self.device = device
 		self.rate=rate
 		self.nAvg=nAvg
 		self.startTime = None
 		self.lastPoint = (0,0,0) #(systime, clocktick, val)
-		self.running = True
+		self.running = False
 		self.lastTime = 0
 
 
-		self.delay = 0.1*device.propCom.CLOCKPERSEC
-		self.duration = 0.11*device.propCom.CLOCKPERSEC
+		self.delay = 0.00001*device.propCom.CLOCKPERSEC
+		self.duration = 0.00101*device.propCom.CLOCKPERSEC
 
 		self.mask = 0
 		for pin in triggers:
@@ -315,7 +316,7 @@ class PulsedExperiment(GraphFrame):
 			return
 		date = '"' + time.asctime() + '"'
 		header = date + ", " + str(int(self.nAvg)) + " sample average"
-		rate = 2000/len(self.channels)
+		rate = rate/len(self.channels)
 		for chan in self.channels:
 			sampPsec = chan.clockFreq / float(chan.value)
 			header += "\n" + "CH " + str(chan.idx)  
@@ -335,8 +336,8 @@ class PulsedExperiment(GraphFrame):
 		self.testDurationTxt = wx.StaticText( widgetPanel, wx.ID_ANY, "Duration(sec):", wx.DefaultPosition, wx.DefaultSize,0)
 		self.testDuration = wx.TextCtrl( widgetPanel, wx.ID_ANY, str((self.duration-self.delay)/self.device.propCom.CLOCKPERSEC), wx.DefaultPosition, wx.Size(100,-1),wx.TE_PROCESS_ENTER)
 		self.sampleRateTxt = wx.StaticText( widgetPanel, wx.ID_ANY, "Sample Rate(samples/sec):", wx.DefaultPosition, wx.DefaultSize,0)
-		self.sampleRate = wx.TextCtrl( widgetPanel, wx.ID_ANY, "2000", wx.DefaultPosition, wx.Size(100,-1),wx.TE_PROCESS_ENTER)
-		self.stopBtn = wx.Button(widgetPanel, wx.ID_ANY, "Stop", wx.DefaultPosition, wx.DefaultSize, 0)
+		self.sampleRate = wx.TextCtrl( widgetPanel, wx.ID_ANY, str(rate), wx.DefaultPosition, wx.Size(100,-1),wx.TE_PROCESS_ENTER)
+		self.stopBtn = wx.Button(widgetPanel, wx.ID_ANY, "Start", wx.DefaultPosition, wx.DefaultSize, 0)
 
 		widgetSizer.Add(self.startDelayTxt, 0, wx.BOTTOM|wx.TOP|wx.RIGHT, 10)
 		widgetSizer.Add(self.startDelay, 0, wx.BOTTOM|wx.TOP|wx.RIGHT, 10)
@@ -380,6 +381,7 @@ class PulsedExperiment(GraphFrame):
 			self.data = dict()
 			self.displayData = dict()
 			self.running = True
+			self.updateData()
 			for c in self.channels:
 				c.register(self)
 			self.setEvents()
@@ -397,12 +399,12 @@ class PulsedExperiment(GraphFrame):
 		self.setAvg()
 	def onDelay(self, event):
 		self.delay = int(float(self.startDelay.GetValue())*self.device.propCom.CLOCKPERSEC)
-		print self.delay
+		print "delay:" + str(self.delay)
 		self.device.propCom.send("timer",[1, self.delay])
 		self.setAvg()
 	def onDuration(self, event):
 		self.duration = self.delay + int(float(self.testDuration.GetValue())*self.device.propCom.CLOCKPERSEC)
-		print self.duration
+		print "duration:" + str(self.duration)
 		self.device.propCom.send("timer",[2, self.duration])
 		self.setAvg()
 	def setAvg(self):
@@ -461,6 +463,7 @@ class PulsedExperiment(GraphFrame):
 
 	def OnClose(self,event):
 		if self.running:
+			self.onStop(None)
 			for c in self.channels:
 				c.deregister(self)
 		self.OnSave(None)
