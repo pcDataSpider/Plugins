@@ -56,18 +56,7 @@ def run_tool(window_parent, device):
 	for pin in triggers:
 		mask = mask | (1<<pin)
 	device.setNAvg(1)
-	#
-	#device.propCom.send("timer",[0, 2*device.propCom.CLOCKPERSEC])
-	#device.propCom.send("timer",[1, 1*device.propCom.CLOCKPERSEC])
-	#device.propCom.send("timer",[2, 1*device.propCom.CLOCKPERSEC])
 	device.propCom.send("resetevents")
-	#device.propCom.send("event", [conditions.index("onHigh"), actions.index("setTimer"), mask, 0])
-	#device.propCom.send("event", [conditions.index("onHigh"), actions.index("setTimer"), mask, 1])
-	#device.propCom.send("event", [conditions.index("onHigh"), actions.index("setTimer"), mask, 2])
-
-	#device.propCom.send("event", [device.propCom.conditions.index("timerExpire"), device.propCom.actions.index("DigOff"), 0, 511])
-	#device.propCom.send("event", [conditions.index("timerExpire"), actions.index("AIStart"), 1, plotChannels[0].idx])
-	#device.propCom.send("event", [conditions.index("timerExpire"), actions.index("AIStop"), 2, plotChannels[0].idx])
 
 
 
@@ -391,8 +380,8 @@ class PulsedExperiment(GraphFrame):
 		self.device.propCom.send("event", [conditions.index("onHigh"), actions.index("setTimer"), self.mask, 2])
 
 		#device.propCom.send("event", [device.propCom.conditions.index("timerExpire"), device.propCom.actions.index("DigOff"), 0, 511])
-		self.device.propCom.send("event", [conditions.index("timerExpire"), actions.index("AIStart"), 1, self.channels[0].idx])
 		self.device.propCom.send("event", [conditions.index("timerExpire"), actions.index("AIStop"), 2, self.channels[0].idx])
+		self.device.propCom.send("event", [conditions.index("timerExpire"), actions.index("AIStart"), 1, self.channels[0].idx])
 
 
 	def onRate(self, event):
