@@ -381,16 +381,22 @@ class PulsedExperiment(GraphFrame):
 		#self.device.addEvent("OnHigh", self.mask, "SetTimer", 0)
 		#self.device.addEvent("OnHigh", self.mask, "SetTimer", 1)
 		#self.device.addEvent("OnHigh", self.mask, "SetTimer", 2)
-		#self.device.addEvent("TimerExpire", 2, "AIStop", self.channels[0].idx)
-		#self.device.addEvent("TimerExpire", 1, "AIStart", self.channels[0].idx)
+		self.device.setEventTimer(0, 100000)
+		self.device.setEventTimer(3, 100000)
+		self.device.addEvent("OnHigh", self.mask, 
+					"SetTimer", 1,
+					"SetTimer", 2)
 
-		self.device.propCom.send("event", [conditions.index("onHigh"), actions.index("setTimer"), self.mask, 0])
-		self.device.propCom.send("event", [conditions.index("onHigh"), actions.index("setTimer"), self.mask, 1])
-		self.device.propCom.send("event", [conditions.index("onHigh"), actions.index("setTimer"), self.mask, 2])
-
-		#device.propCom.send("event", [device.propCom.conditions.index("timerExpire"), device.propCom.actions.index("DigOff"), 0, 511])
-		self.device.propCom.send("event", [conditions.index("timerExpire"), actions.index("AIStop"), 2, self.channels[0].idx])
-		self.device.propCom.send("event", [conditions.index("timerExpire"), actions.index("AIStart"), 1, self.channels[0].idx])
+		self.device.addEvent("TimerExpire", 0,
+				"DOLow", 1<<1,
+				"SetTimer", 3)
+		self.device.addEvent("TimerExpire", 3,
+				"DOHigh", 1<<1,
+				"SetTimer", 0)
+		self.device.addEvent("TimerExpire", 2, "AIStop", self.channels[0].idx)
+		self.device.addEvent("TimerExpire", 1, "AIStart", self.channels[0].idx)
+		self.device.addEvent("OnTrigger", 1, "SetTimer", 3)
+		self.device.eventTrigger(1)
 
 
 	def onRate(self, event):
