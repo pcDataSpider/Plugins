@@ -377,6 +377,13 @@ class PulsedExperiment(GraphFrame):
 				c.register(self)
 			self.setEvents()
 	def setEvents(self):
+		# TODO switch to device.addEvent(...) and test.
+		#self.device.addEvent("OnHigh", self.mask, "SetTimer", 0)
+		#self.device.addEvent("OnHigh", self.mask, "SetTimer", 1)
+		#self.device.addEvent("OnHigh", self.mask, "SetTimer", 2)
+		#self.device.addEvent("TimerExpire", 2, "AIStop", self.channels[0].idx)
+		#self.device.addEvent("TimerExpire", 1, "AIStart", self.channels[0].idx)
+
 		self.device.propCom.send("event", [conditions.index("onHigh"), actions.index("setTimer"), self.mask, 0])
 		self.device.propCom.send("event", [conditions.index("onHigh"), actions.index("setTimer"), self.mask, 1])
 		self.device.propCom.send("event", [conditions.index("onHigh"), actions.index("setTimer"), self.mask, 2])
