@@ -268,6 +268,7 @@ class GraphFrame(wx.Frame):
 
 class PulsedExperiment(GraphFrame):
 	def __init__(self, parent, device, channels=None, triggers=None, rate=10000, nAvg=10, bufferSize=1):
+		self.firstTime = None
 		self.channels = channels
 		self.device = device
 		self.rate=rate
@@ -365,6 +366,7 @@ class PulsedExperiment(GraphFrame):
 			for c in self.channels:
 				c.deregister(self)
 			self.device.propCom.send("resetevents")
+			self.firstTime = None
 		else:
 			self.stopBtn.SetLabel("Stop")
 			self.data = dict()
@@ -448,6 +450,9 @@ class PulsedExperiment(GraphFrame):
 				i+=1
 			if i>0:
 				v/=i
+				if self.firstTime is None:
+					self.firstTime = rTime
+				rTime = rTime - self.firstTime
 				self.addPoint( rTime,v,channel.idx)
 
 	def OnClose(self,event):
