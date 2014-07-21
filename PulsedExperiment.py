@@ -366,11 +366,11 @@ class PulsedExperiment(GraphFrame):
 			for c in self.channels:
 				c.deregister(self)
 			self.device.propCom.send("resetevents")
-			self.firstTime = None
 		else:
 			self.stopBtn.SetLabel("Stop")
 			self.data = dict()
 			self.displayData = dict()
+			self.firstTime = None
 			self.running = True
 			self.updateData()
 			for c in self.channels:
