@@ -143,7 +143,11 @@ class GraphFrame(wx.Frame):
 		if idx not in self.data:
 			self.data[idx] = []
 			self.displayData[idx] = []
-		self.data[idx].append((x,y,debugObj))
+
+		if debugObj is not None:
+			self.data[idx].append((x,y,debugObj))
+		else:
+			self.data[idx].append((x,y))
 		self.displayData[idx].append((x,y))
 		#if self.dataQueue.full():
 		#	self.dataQueue.get()
@@ -444,7 +448,7 @@ class NewGraphFrame(GraphFrame):
 		for chan in self.started_channels:
 			chan.register(self) 
 		logger.log("line scan started" , "")
-	def onHigh(self, chan, propCom, dVal):
+	def onHigh(self, chan, propCom, dVal, rTime):
 		self.startSample(propCom)
 	def onPoint(self, chan, propCom, pVal, tStamp, rTime, debugObj=None):
 		if not self.sampling:
@@ -519,6 +523,7 @@ class NewGraphFrame(GraphFrame):
 					
 					avg[idx] = total
 					self.samples[idx] = [[],0]
+				logger.write("LineScan:" + "addPoint " + str(self.nTest) + "," + str(avg[idx]) + "," + str(idx))
 				self.addPoint(self.nTest, avg[idx], idx)
 			#if self.outFile is not None:
 			#	try:
