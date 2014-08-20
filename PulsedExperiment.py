@@ -7,8 +7,8 @@ import threading
 import os
 
 
-title= "CEI Pulsed Experiment"
-description= "Tool for pulsed experiments"
+title= "Pulsed Experiment Tool"
+description= "Tool for taking pulsed experiment readings"
 
 
 conditions = ["timerExpire", "always", "onChange", "onHigh", "onLow", "whileHigh", "whileLow"]
