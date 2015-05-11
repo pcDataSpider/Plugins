@@ -14,6 +14,7 @@ import os, sys
 
 import graph
 
+
 title = "Line Scan "
 description = "Line Scan"
 

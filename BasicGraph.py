@@ -13,6 +13,7 @@ import graph
 
 
 
+
 title = "Graphing tool"
 description = "Graphs an analog input values"
 
